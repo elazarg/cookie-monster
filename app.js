@@ -1,9 +1,25 @@
+// Language detection and dropdown functions
+function detectDeviceLanguage() {
+    const userLang = navigator.language || navigator.userLanguage;
+    const langCode = userLang.toLowerCase().substring(0, 2);
+    
+    // Check if we support the detected language
+    if (translations[langCode]) {
+        return langCode;
+    }
+    
+    // Default to English if not supported
+    return 'en';
+}
+
 // Simple debt tracking with browser storage
 let totalDebt = 0;
 let currentLanguage = 'he';
 let actionHistory = [];
 let longPressTimer;
 let isEditing = false;
+
+const maxDebt = 20.0;
 
 // Browser cookie functions
 function setCookie(name, value, days) {
@@ -42,11 +58,11 @@ const translations = {
         totalDebt: "Total Debt",
         creditBalance: "Credit Balance",
         iTookCookie: "I took a cookie",
-        addPayment: "I payed",
+        addPayment: "I paid",
         clearEverything: "I Paid Everything",
         undo: "Undo",
-        debtLimitReached: "Cannot exceed ₪20 debt limit",
-        creditLimitReached: "Cannot exceed ₪20 credit balance"
+        debtLimitReached: `Cannot exceed ₪${maxDebt} debt limit`,
+        creditLimitReached: `Cannot exceed ₪${maxDebt} credit balance`
     },
     he: {
         title: "מעקב עוגיות",
@@ -57,8 +73,8 @@ const translations = {
         addPayment: "שילמתי",
         clearEverything: "שילמתי הכל",
         undo: "בטל",
-        debtLimitReached: "לא ניתן לעבור חוב של ₪20",
-        creditLimitReached: "לא ניתן לעבור יתרה של ₪20"
+        debtLimitReached: `לא ניתן לעבור חוב של ₪${maxDebt}`,
+        creditLimitReached: `לא ניתן לעבור יתרה של ₪${maxDebt}`
     },
     ar: {
         title: "حساب الكوكيز",
@@ -69,10 +85,15 @@ const translations = {
         addPayment: "دفعت",
         clearEverything: "دفعت كل شيء",
         undo: "تراجع",
-        debtLimitReached: "لا يمكن تجاوز حد الدين ₪20",
-        creditLimitReached: "لا يمكن تجاوز رصيد ائتماني ₪20"
+        debtLimitReached: `لا يمكن تجاوز حد الدين ₪${maxDebt}`,
+        creditLimitReached: `لا يمكن تجاوز رصيد ائتماني ₪${maxDebt}`
     }
 };
+
+function translate(key) {
+    const t = translations[currentLanguage];
+    return t && t[key] ? t[key] : translations['en'][key];
+}
 
 function addToHistory(action, amount, description) {
     actionHistory.push({
@@ -146,7 +167,7 @@ function editDebtAmount() {
         debtAmountElement.classList.remove('editing');
         
         const newValue = parseFloat(debtAmountElement.textContent);
-        if (!isNaN(newValue) && newValue >= 0 && newValue <= 99.9) {
+        if (!isNaN(newValue) && newValue >= 0 && newValue <= maxDebt) {
             const oldDebt = totalDebt;
             totalDebt = totalDebt >= 0 ? newValue : -newValue;
             addToHistory('edit', totalDebt - oldDebt, `Manual edit to ₪${totalDebt.toFixed(1)}`);
@@ -180,17 +201,14 @@ function setLanguage(lang) {
             element.textContent = translations[lang][key];
         }
     });
-    
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    const activeBtn = document.querySelector(`[data-lang="${lang}"]`);
-    if (activeBtn) {
-        activeBtn.classList.add('active');
-    }
-    
+    document.getElementById('languageDropdown').classList.remove('open');
+
     updateDisplay();
+}
+
+function toggleLanguageDropdown() {
+    const dropdown = document.getElementById('languageDropdown');
+    dropdown.classList.toggle('open');
 }
 
 function updateDisplay() {
@@ -200,14 +218,12 @@ function updateDisplay() {
     
     if (!display || !debtAmountElement || !progressFill) return;
     
-    const t = translations[currentLanguage] || translations['en'];
-    
     debtAmountElement.textContent = Math.abs(totalDebt).toFixed(1);
     
     const debtLabel = display.querySelector('.debt-text span');
     if (debtLabel) {
         if (totalDebt >= 0) {
-            debtLabel.textContent = t.totalDebt;
+            debtLabel.textContent = translate('totalDebt');
             
             if (totalDebt === 0) {
                 display.className = 'debt-display no-debt';
@@ -217,10 +233,10 @@ function updateDisplay() {
                 display.className = 'debt-display';
             }
             
-            const progressPercent = Math.min((totalDebt / 20) * 100, 100);
+            const progressPercent = Math.min((totalDebt / maxDebt) * 100, 100);
             progressFill.style.width = progressPercent + '%';
         } else {
-            debtLabel.textContent = t.creditBalance;
+            debtLabel.textContent = translate('creditBalance');
             display.className = 'debt-display positive';
             progressFill.style.width = '0%';
         }
@@ -228,9 +244,8 @@ function updateDisplay() {
 }
 
 function addCookie(cookieType, price) {
-    if (totalDebt + price > 20.0) {
-        const t = translations[currentLanguage];
-        alert(t.debtLimitReached || "Cannot exceed ₪20.0 debt limit");
+    if (totalDebt + price > maxDebt) {
+        alert(translate('debtLimitReached') || `Cannot exceed ₪${maxDebt} debt limit`);
         return;
     }
     
@@ -247,9 +262,8 @@ function addPayment(amount) {
     amount = Math.round(amount * 10) / 10;
     const newDebt = totalDebt - amount;
     
-    if (newDebt < -99.9) {
-        const t = translations[currentLanguage];
-        alert(t.creditLimitReached || "Cannot exceed ₪99.9 credit balance");
+    if (newDebt < -maxDebt) {
+        alert(translate('creditLimitReached') || `Cannot exceed ₪${maxDebt} credit balance`);
         return;
     }
     
@@ -271,5 +285,5 @@ function clearEverything() {
 
 // Initialize
 loadDebtFromCookies();
-setLanguage('he');
+setLanguage(detectDeviceLanguage());
 updateUndoButton();

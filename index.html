@@ -4,29 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cookie Debt Tracker</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="glass.css">
 </head>
 <body>
     <div class="language-selector">
-        <button class="lang-btn" onclick="setLanguage('en')" data-lang="en">EN</button>
-        <button class="lang-btn" onclick="setLanguage('he')" data-lang="he">עב</button>
-        <button class="lang-btn" onclick="setLanguage('ar')" data-lang="ar">ع</button>
+        <div class="language-dropdown" id="languageDropdown">
+            <button class="lang-current" id="langCurrent" onclick="toggleLanguageDropdown()">🌐</button>
+            <div class="lang-options" id="langOptions">
+                <button class="lang-option" onclick="setLanguage('en')" data-lang="en">EN</button>
+                <button class="lang-option" onclick="setLanguage('he')" data-lang="he">עב</button>
+                <button class="lang-option" onclick="setLanguage('ar')" data-lang="ar">ع</button>
+            </div>
+        </div>
     </div>
 
     <div class="container">
         <h1 data-i18n="title">Cookie Tracker</h1>
-        <p class="subtitle" data-i18n="subtitle" style="display: none;">Trust-based cookie debt system</p>
+        <p class="subtitle" data-i18n="subtitle">Trust-based cookie debt system</p>
         
-        <div class="section">
-            <div class="cookie-buttons">
-                <button class="cookie-btn large-cookie-btn" onclick="addCookie('Cookie', 1.0)">
-                    <span data-i18n="iTookCookie">I took a cookie</span>
-                    <br>₪1.0
-                </button>
-            </div>
+        <div class="cookie-section">
+            <button class="cookie-btn" onclick="addCookie('Cookie', 1.0)">
+                <span data-i18n="iTookCookie">I took a cookie</span>
+                <br>₪1.0
+            </button>
         </div>
 
-        <div class="debt-display" id="debtDisplay" oncontextmenu="return false;" ontouchstart="handleLongPress(event)" ontouchend="clearLongPress()" onmousedown="handleLongPress(event)" onmouseup="clearLongPress()">
+        <div class="debt-display" id="debtDisplay" oncontextmenu="return false;" 
+             ontouchstart="handleLongPress(event)" ontouchend="clearLongPress()" 
+             onmousedown="handleLongPress(event)" onmouseup="clearLongPress()">
             <div class="debt-progress-bar">
                 <div class="debt-progress-fill" id="debtProgressFill"></div>
             </div>
@@ -35,18 +40,18 @@
             </div>
         </div>
 
-        <div class="section">
-            <h3 data-i18n="addPayment">I payed:</h3>
+        <div class="payment-section">
+            <h3 data-i18n="addPayment">I paid:</h3>
             <div class="payment-buttons">
-                <button class="payment-btn quick-pay" onclick="addPayment(1)">₪1</button>
-                <button class="payment-btn quick-pay" onclick="addPayment(5)">₪5</button>
-                <button class="payment-btn quick-pay" onclick="addPayment(10)">₪10</button>
+                <button class="payment-btn" onclick="addPayment(1)">₪1</button>
+                <button class="payment-btn" onclick="addPayment(5)">₪5</button>
+                <button class="payment-btn" onclick="addPayment(10)">₪10</button>
             </div>
         </div>
 
         <div class="action-buttons">
-            <button class="undo-btn" onclick="undoLastAction()" data-i18n="undo" id="undoBtn" disabled>Undo</button>
-            <button class="clear-btn" onclick="clearEverything()" data-i18n="clearEverything">I Paid Everything</button>
+            <button class="action-btn" onclick="undoLastAction()" data-i18n="undo" id="undoBtn" disabled>Undo</button>
+            <button class="action-btn clear-btn" onclick="clearEverything()" data-i18n="clearEverything">I Paid Everything</button>
         </div>
     </div>
 
