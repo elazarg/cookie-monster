@@ -201,12 +201,18 @@ function setLanguage(lang) {
             element.textContent = translations[lang][key];
         }
     });
-    document.getElementById('languageDropdown').classList.remove('open');
+    
+    // Close dropdown properly - remove BOTH class AND inline style
+    const dropdown = document.getElementById('languageDropdown');
+    const options = document.getElementById('langOptions');
+    dropdown.classList.remove('open');
+    options.style.display = 'none';
 
     updateDisplay();
 }
 
-function toggleLanguageDropdown() {
+function toggleLanguageDropdown(event) {
+    event.stopPropagation(); // Prevent immediate closing
     const dropdown = document.getElementById('languageDropdown');
     const options = document.getElementById('langOptions');
     
@@ -216,13 +222,6 @@ function toggleLanguageDropdown() {
     } else {
         dropdown.classList.add('open');
         options.style.display = 'block';
-        
-        // Force mobile positioning
-        if (window.innerWidth <= 480) {
-            options.style.position = 'fixed';
-            options.style.top = '60px';
-            options.style.right = '10px';
-        }
     }
 }
 
