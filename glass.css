@@ -1,3 +1,28 @@
+/* -- Root Variables for easy theme management -- */
+:root {
+    --white-color: #fff;
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    
+    /* Glassmorphism Styles */
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-bg-hover: rgba(255, 255, 255, 0.2);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.2);
+    --glass-blur: 30px;
+
+    /* Debt Status Colors */
+    --debt-high-bg: rgba(255, 107, 107, 0.2);
+    --debt-high-border: rgba(255, 107, 107, 0.5);
+    --debt-low-bg: rgba(255, 167, 38, 0.2);
+    --debt-low-border: rgba(255, 167, 38, 0.5);
+    --debt-none-bg: rgba(38, 222, 129, 0.2);
+    --debt-none-border: rgba(38, 222, 129, 0.5);
+
+    /* Shadows */
+    --shadow-container: 0 40px 80px rgba(0, 0, 0, 0.15);
+    --shadow-btn-hover: 0 20px 40px rgba(255, 255, 255, 0.2);
+}
+
+/* -- Global Styles -- */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -12,7 +37,7 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background: var(--primary-gradient);
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -21,23 +46,37 @@ body {
     position: relative;
     overflow: hidden;
 }
-/* 
-body::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1" fill="rgba(255,255,255,0.15)"/><circle cx="40" cy="80" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="90" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="1.5" fill="rgba(255,255,255,0.1)"/></svg>');
-    animation: float 20s ease-in-out infinite;
-} */
 
-@keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-20px) rotate(180deg); }
+/* -- Main Container -- */
+.container {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    border-radius: 32px;
+    padding: 40px 30px;
+    border: var(--glass-border);
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    box-shadow: var(--shadow-container);
 }
 
+h1 {
+    color: var(--white-color);
+    margin-bottom: 12px;
+    font-size: 2.2em;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.subtitle {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 40px;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+/* -- Language Selector -- */
 .language-selector {
     position: absolute;
     top: 8px;
@@ -47,30 +86,13 @@ body::before {
 
 .language-dropdown {
     position: relative;
-    /* Force LTR for dropdown regardless of document direction */
-    direction: ltr;
+    direction: ltr; /* Force LTR for dropdown */
 }
 
-.lang-option {
-    background: transparent;
-    border: none;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 500;
-    font-size: 12px;
-    width: 100%;
-    text-align: center;
-    display: block;
-    margin-bottom: 2px;
-    /* Prevent inheritance of RTL styles */
-    direction: ltr;
-}
 .lang-current {
     background: rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.3);
-    color: white;
+    color: var(--white-color);
     padding: 8px 12px;
     border-radius: 12px;
     cursor: pointer;
@@ -99,65 +121,39 @@ body::before {
     display: none;
     z-index: 101;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    /* Force stable positioning */
     direction: ltr;
     text-align: center;
 }
-
 
 .language-dropdown.open .lang-options {
     display: block;
 }
 
-.lang-options {
-    position: fixed;
-    top: 50px;
-    right: 10px;
-    background: rgba(40, 40, 60, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 12px;
-    padding: 8px;
-    min-width: 100px;
-    display: none;
-    z-index: 101;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+.lang-option {
+    background: transparent;
+    border: none;
+    color: var(--white-color);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 12px;
+    width: 100%;
+    text-align: center;
+    display: block;
+    margin-bottom: 2px;
+    direction: ltr;
 }
+
 .lang-option:last-child {
     margin-bottom: 0;
 }
 
 .lang-option:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--glass-bg-hover);
 }
 
-.container {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(30px);
-    border-radius: 32px;
-    padding: 40px 30px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    max-width: 420px;
-    width: 100%;
-    text-align: center;
-    position: relative;
-    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.15);
-}
-
-h1 {
-    color: white;
-    margin-bottom: 12px;
-    font-size: 2.2em;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-}
-
-.subtitle {
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 40px;
-    font-size: 16px;
-    font-weight: 400;
-}
-
+/* -- Cookie & Debt Section -- */
 .cookie-section {
     margin-bottom: 30px;
 }
@@ -166,17 +162,17 @@ h1 {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(20px);
     border: 2px solid rgba(255, 255, 255, 0.3);
-    color: white;
+    color: var(--white-color);
     padding: 24px 50px;
     border-radius: 20px;
     cursor: pointer;
     font-weight: 600;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     font-size: 18px;
     width: 100%;
     max-width: 280px;
     position: relative;
     overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .cookie-btn::before {
@@ -198,7 +194,7 @@ h1 {
     transform: translateY(-4px) scale(1.02);
     background: rgba(255, 255, 255, 0.25);
     border-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 20px 40px rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow-btn-hover);
 }
 
 .cookie-btn:active {
@@ -209,7 +205,7 @@ h1 {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(20px);
     border: 2px solid rgba(255, 255, 255, 0.3);
-    color: white;
+    color: var(--white-color);
     padding: 30px 20px;
     border-radius: 24px;
     margin: 30px 0;
@@ -219,80 +215,47 @@ h1 {
     overflow: hidden;
     cursor: pointer;
     transition: all 0.3s ease;
-    -webkit-touch-callout: default;
-    -webkit-user-select: text;
+    -webkit-user-select: text; /* Allow selection for debt amount */
     -moz-user-select: text;
     -ms-user-select: text;
     user-select: text;
 }
 
-.debt-display::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.1);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    border-radius: 22px;
-}
-
 .debt-display.has-debt {
-    border-color: rgba(255, 107, 107, 0.5);
-    background: rgba(255, 107, 107, 0.2);
+    border-color: var(--debt-high-border);
+    background: var(--debt-high-bg);
 }
 
 .debt-display.low-debt {
-    border-color: rgba(255, 167, 38, 0.5);
-    background: rgba(255, 167, 38, 0.2);
+    border-color: var(--debt-low-border);
+    background: var(--debt-low-bg);
 }
 
-.debt-display.no-debt {
-    border-color: rgba(38, 222, 129, 0.5);
-    background: rgba(38, 222, 129, 0.2);
-}
-
+.debt-display.no-debt,
 .debt-display.positive {
-    border-color: rgba(38, 222, 129, 0.5);
-    background: rgba(38, 222, 129, 0.2);
+    border-color: var(--debt-none-border);
+    background: var(--debt-none-bg);
 }
 
 .debt-display:hover {
     transform: scale(1.02);
+    background: var(--glass-bg-hover);
+}
+
+#debtAmount.editing {
     background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 4px 8px;
+    outline: none;
 }
 
-.debt-display:hover::after {
-    opacity: 1;
-}
-
-.debt-progress-bar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 0 0 24px 24px;
-}
-
-.debt-progress-fill {
-    height: 100%;
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: 0 0 24px 24px;
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    width: 0%;
-    backdrop-filter: blur(10px);
-}
-
+/* -- Payment Section -- */
 .payment-section {
     margin-bottom: 30px;
 }
 
 .payment-section h3 {
-    color: white;
+    color: var(--white-color);
     margin-bottom: 20px;
     font-size: 18px;
     font-weight: 600;
@@ -305,20 +268,20 @@ h1 {
 }
 
 .payment-btn {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--glass-bg);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+    border: var(--glass-border);
+    color: var(--white-color);
     padding: 16px 12px;
     border-radius: 16px;
     cursor: pointer;
     font-weight: 600;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-size: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .payment-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--glass-bg-hover);
     transform: translateY(-2px);
     box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
 }
@@ -327,6 +290,7 @@ h1 {
     transform: translateY(0);
 }
 
+/* -- Action Buttons & Links -- */
 .action-buttons {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -335,10 +299,10 @@ h1 {
 }
 
 .action-btn {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--glass-bg);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+    border: var(--glass-border);
+    color: var(--white-color);
     padding: 16px 20px;
     border-radius: 16px;
     cursor: pointer;
@@ -348,7 +312,7 @@ h1 {
 }
 
 .action-btn:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--glass-bg-hover);
     transform: translateY(-2px);
 }
 
@@ -358,10 +322,9 @@ h1 {
 }
 
 .clear-btn {
-    background: rgba(255, 107, 107, 0.2);
-    backdrop-filter: blur(20px);
-    border: 2px solid rgba(255, 107, 107, 0.4);
-    color: white;
+    background: var(--debt-high-bg);
+    border: 2px solid var(--debt-high-border);
+    color: var(--white-color);
 }
 
 .clear-btn:hover {
@@ -370,22 +333,15 @@ h1 {
     box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
 }
 
-#debtAmount.editing {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    padding: 4px 8px;
-    outline: none;
-}
-
 .payment-link-section {
     margin: 15px 0;
 }
 
 .payment-link-btn {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--glass-bg);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
+    border: var(--glass-border);
+    color: var(--white-color);
     padding: 12px 20px;
     border-radius: 12px;
     cursor: pointer;
@@ -408,6 +364,7 @@ h1 {
     cursor: not-allowed;
 }
 
+/* -- Responsive Design -- */
 @media (max-width: 480px) {
     .container {
         padding: 30px 20px;

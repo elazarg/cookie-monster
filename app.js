@@ -232,7 +232,7 @@ function updateDisplay() {
     
     if (!display || !debtAmountElement || !progressFill) return;
     
-    debtAmountElement.textContent = Math.abs(totalDebt).toFixed(1);
+    debtAmountElement.textContent = Math.abs(totalDebt);
     
     const debtLabel = display.querySelector('.debt-text span');
     if (debtLabel) {
@@ -265,7 +265,7 @@ function addCookie(cookieType, price) {
     
     totalDebt += price;
     addToHistory('cookie', price, `${cookieType} (₪${price})`);
-    console.log(`Added ${cookieType} (₪${price}). New total: ₪${totalDebt.toFixed(1)}`);
+    console.log(`Added ${cookieType} (₪${price}). New total: ₪${totalDebt}`);
     saveDebtToCookies();
     updateDisplay();
 }
@@ -273,7 +273,7 @@ function addCookie(cookieType, price) {
 function addPayment(amount) {
     if (!amount) return;
     
-    amount = Math.round(amount * 10) / 10;
+    amount = Math.round(amount);
     const newDebt = totalDebt - amount;
     
     if (newDebt < -maxDebt) {
