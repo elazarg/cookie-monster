@@ -164,7 +164,7 @@ function editDebtAmount() {
             e.preventDefault();
         }
     });
-    
+
     input.select();
 
     function finish() {
@@ -326,9 +326,8 @@ function clearEverything() {
 
 function openPaymentApp() {
     // Replace with actual Bit/PayBox link when ready
-    // window.open('BIT_OR_PAYBOX_LINK', '_blank');
-
-    alert('Payment link coming soon!');
+    window.open('https://www.bitpay.co.il/app/me/BF427070-1BCE-B33D-61C7-05D6AB9DE241D263', '_blank');
+    // alert('Payment link coming soon!');
 }
 
 // Initialize
