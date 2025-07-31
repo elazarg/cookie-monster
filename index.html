@@ -27,15 +27,14 @@
         <!-- <p class="subtitle" data-i18n="subtitle">Trust-based cookie debt system</p> -->
         
         <div class="cookie-section">
-            <button class="cookie-btn" onclick="addCookie('Cookie', 1.0)">
+            <button class="cookie-btn" onclick="addCookie('Cookie', 1)">
                 <span data-i18n="iTookCookie">I took a cookie</span>
-                <br>₪1.0
+                <br>₪1
             </button>
         </div>
 
         <div class="debt-display" id="debtDisplay" oncontextmenu="return false;" 
-             ontouchstart="handleLongPress(event)" ontouchend="clearLongPress()" 
-             onmousedown="handleLongPress(event)" onmouseup="clearLongPress()">
+             ontouchstart="handleLongPress(event)" ontouchend="clearTimeout(longPressTimer)">
             <div class="debt-progress-bar">
                 <div class="debt-progress-fill" id="debtProgressFill"></div>
             </div>
