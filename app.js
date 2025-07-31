@@ -131,48 +131,86 @@ function handleLongPress(event) {
 function editDebtAmount() {
     if (isEditing) return;
 
-    const debtAmountElement = document.getElementById('debtAmount');
-    if (!debtAmountElement) return;
+    const oldSpan = document.getElementById('debtAmount');
+    if (!oldSpan) return;
 
     isEditing = true;
-    const currentValue = Math.abs(totalDebt);
+    const currentValue = totalDebt.toString();
 
-    debtAmountElement.contentEditable = true;
-    debtAmountElement.classList.add('editing');
-    debtAmountElement.textContent = currentValue;
-    debtAmountElement.focus();
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.inputMode = 'numeric';
+    input.pattern = "-?[0-9]{1,4}";
+    input.value = currentValue;
+    input.className = 'debt-input';
+    input.setAttribute('aria-label', 'Edit debt amount');
+    input.setAttribute('maxlength', '5');  // Not enforced by all browsers, but safe
+    input.setAttribute('min', '-9999');
+    input.setAttribute('max', '9999');
 
-    // Select all text
-    const range = document.createRange();
-    range.selectNodeContents(debtAmountElement);
-    const sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
+    // Replace span with input
+    oldSpan.replaceWith(input);
+    input.focus();
+    
+    input.addEventListener('beforeinput', function (e) {
+        if (e.inputType.startsWith('delete')) return; // always allow deletes
 
-    function finishEditing() {
+        const selection = input.selectionStart;
+        const value = input.value;
+        const proposed =
+            value.slice(0, selection) + e.data + value.slice(input.selectionEnd);
+
+        if (proposed.length > 4) {
+            e.preventDefault();
+        }
+    });
+    
+    input.select();
+
+    function finish() {
         if (!isEditing) return;
         isEditing = false;
-        debtAmountElement.contentEditable = false;
-        debtAmountElement.classList.remove('editing');
 
-        const newValue = parseFloat(debtAmountElement.textContent);
-        if (!isNaN(newValue) && newValue >= 0 && newValue <= maxDebt) {
+        let newValue = parseInt(input.value);
+        if (!isNaN(newValue)) {
             const oldDebt = totalDebt;
-            totalDebt = totalDebt >= 0 ? newValue : -newValue;
+            totalDebt = newValue;
             addToHistory('edit', totalDebt - oldDebt, `Manual edit to ₪${totalDebt}`);
             saveDebtToCookies();
         }
+
+        // Replace input back with span
+        const newSpan = document.createElement('span');
+        newSpan.id = 'debtAmount';
+        newSpan.textContent = Math.abs(totalDebt);
+        newSpan.setAttribute('aria-live', 'polite');
+        newSpan.className = oldSpan.className;
+
+        input.replaceWith(newSpan);
         updateDisplay();
     }
+    input.addEventListener('blur', finish);
+    input.addEventListener('keydown', function (e) {
+        // Prevent 'e', '+', and other non-digit characters
+        if (e.key.toLowerCase() === 'e' || e.key === '+' || e.key === ',') {
+            e.preventDefault();
+            return;
+        }
 
-    // Add event listeners immediately
-    debtAmountElement.onblur = finishEditing;
-    debtAmountElement.onkeydown = function (e) {
         if (e.key === 'Enter') {
             e.preventDefault();
-            finishEditing();
+            finish();
         }
-    };
+    });
+
+}
+
+function flashDebtError() {
+    const display = document.getElementById('debtDisplay');
+    if (!display) return;
+
+    display.classList.add('error');
+    setTimeout(() => display.classList.remove('error'), 400);
 }
 
 function setLanguage(lang) {
@@ -248,7 +286,7 @@ function updateDisplay() {
 
 function addCookie(cookieType, price) {
     if (totalDebt + price > maxDebt) {
-        alert(translate('debtLimitReached'));
+        flashDebtError();
         return;
     }
 

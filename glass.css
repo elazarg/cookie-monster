@@ -221,6 +221,34 @@ h1 {
     user-select: text;
 }
 
+.debt-input {
+    width: 100%;
+    font-size: 1.6em;
+    font-weight: 700;
+    text-align: center;
+    border: none;
+    border-radius: 8px;
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    outline: none;
+    font-family: inherit;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Remove spinner arrows */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
+
 .debt-display.has-debt {
     border-color: var(--debt-high-border);
     background: var(--debt-high-bg);
@@ -237,9 +265,19 @@ h1 {
     background: var(--debt-none-bg);
 }
 
-.debt-display:hover {
-    transform: scale(1.02);
-    background: var(--glass-bg-hover);
+@keyframes shake {
+  0% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+  100% { transform: translateX(0); }
+}
+
+.debt-display.error {
+  animation: shake 0.4s ease;
+  border-color: rgba(255, 0, 0, 0.8) !important;
+  background: rgba(255, 0, 0, 0.1) !important;
 }
 
 #debtAmount.editing {
