@@ -248,17 +248,6 @@ input[type=number] {
     -moz-appearance: textfield;
 }
 
-
-.debt-display.has-debt {
-    border-color: var(--debt-high-border);
-    background: var(--debt-high-bg);
-}
-
-.debt-display.low-debt {
-    border-color: var(--debt-low-border);
-    background: var(--debt-low-bg);
-}
-
 .debt-display.no-debt,
 .debt-display.positive {
     border-color: var(--debt-none-border);

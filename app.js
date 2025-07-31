@@ -52,38 +52,32 @@ const translations = {
     en: {
         title: "Cookie Monster",
         subtitle: "Trust-based cookie debt system",
-        totalDebt: "Total Debt",
+        totalDebt: "Debt",
         creditBalance: "Credit Balance",
         iTookCookie: "I took a cookie",
         addPayment: "I paid",
         clearEverything: "I Paid Everything",
         undo: "Undo",
-        debtLimitReached: `Cannot exceed ₪${maxDebt} debt limit`,
-        creditLimitReached: `Cannot exceed ₪${maxDebt} credit balance`
     },
     he: {
         title: "עוגי",
         subtitle: "מערכת תשלום עצמי לעוגיות",
-        totalDebt: "חוב כולל",
+        totalDebt: "חוב",
         creditBalance: "יתרה",
-        iTookCookie: "לקחתי עוגייה",
+        iTookCookie: "לקחתי עוגיה",
         addPayment: "שילמתי",
         clearEverything: "שילמתי הכל",
-        undo: "בטל",
-        debtLimitReached: `לא ניתן לעבור חוב של ₪${maxDebt}`,
-        creditLimitReached: `לא ניתן לעבור יתרה של ₪${maxDebt}`
+        undo: "ביטול",
     },
     ar: {
         title: "كعكي",
         subtitle: "نظام دفع ذاتي للكوكيز",
-        totalDebt: "اجمالي الدين",
+        totalDebt: "الدين",
         creditBalance: "رصيد",
         iTookCookie: "أخذت كوكي",
         addPayment: "دفعت",
         clearEverything: "دفعت كل شيء",
         undo: "تراجع",
-        debtLimitReached: `لا يمكن تجاوز حد الدين ₪${maxDebt}`,
-        creditLimitReached: `لا يمكن تجاوز رصيد ائتماني ₪${maxDebt}`
     }
 };
 
@@ -263,23 +257,22 @@ function updateDisplay() {
 
     const debtLabel = display.querySelector('.debt-text span');
     if (debtLabel) {
-        if (totalDebt >= 0) {
-            debtLabel.textContent = translate('totalDebt');
+        if (totalDebt > 0) {
+            const intensity = Math.min(totalDebt / maxDebt, 1);
+            const background = `rgba(255, 0, 0, ${0.05 + intensity * 0.35})`;
+            const border = `rgba(255, 0, 0, ${0.3 + intensity * 0.5})`;
 
-            if (totalDebt === 0) {
-                display.className = 'debt-display no-debt';
-            } else if (totalDebt <= 5) {
-                display.className = 'debt-display low-debt';
-            } else {
-                display.className = 'debt-display';
-            }
-
-            const progressPercent = Math.min((totalDebt / maxDebt) * 100, 100);
-            progressFill.style.width = progressPercent + '%';
+            display.style.background = background;
+            display.style.borderColor = border;
+            display.className = 'debt-display';  // base class only
+        } else if (totalDebt === 0) {
+            display.style.background = 'var(--debt-none-bg)';
+            display.style.borderColor = 'var(--debt-none-border)';
+            display.className = 'debt-display no-debt';
         } else {
-            debtLabel.textContent = translate('creditBalance');
+            display.style.background = 'var(--debt-none-bg)';
+            display.style.borderColor = 'var(--debt-none-border)';
             display.className = 'debt-display positive';
-            progressFill.style.width = '0%';
         }
     }
 }
@@ -304,7 +297,7 @@ function addPayment(amount) {
     const newDebt = totalDebt - amount;
 
     if (newDebt < -maxDebt) {
-        alert(translate('creditLimitReached'));
+        flashDebtError();
         return;
     }
 
