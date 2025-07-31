@@ -53,7 +53,7 @@ function saveDebtToCookies() {
 // Translation data
 const translations = {
     en: {
-        title: "Cookie Tracker",
+        title: "Cookie Monster",
         subtitle: "Trust-based cookie debt system",
         totalDebt: "Total Debt",
         creditBalance: "Credit Balance",
@@ -65,7 +65,7 @@ const translations = {
         creditLimitReached: `Cannot exceed ₪${maxDebt} credit balance`
     },
     he: {
-        title: "מעקב עוגיות",
+        title: "עוגי",
         subtitle: "מערכת תשלום עצמי לעוגיות",
         totalDebt: "חוב כולל",
         creditBalance: "יתרה",
@@ -77,7 +77,7 @@ const translations = {
         creditLimitReached: `לא ניתן לעבור יתרה של ₪${maxDebt}`
     },
     ar: {
-        title: "حساب الكوكيز",
+        title: "كعكي",
         subtitle: "نظام دفع ذاتي للكوكيز",
         totalDebt: "اجمالي الدين",
         creditBalance: "رصيد",
@@ -208,7 +208,22 @@ function setLanguage(lang) {
 
 function toggleLanguageDropdown() {
     const dropdown = document.getElementById('languageDropdown');
-    dropdown.classList.toggle('open');
+    const options = document.getElementById('langOptions');
+    
+    if (dropdown.classList.contains('open')) {
+        dropdown.classList.remove('open');
+        options.style.display = 'none';
+    } else {
+        dropdown.classList.add('open');
+        options.style.display = 'block';
+        
+        // Force mobile positioning
+        if (window.innerWidth <= 480) {
+            options.style.position = 'fixed';
+            options.style.top = '60px';
+            options.style.right = '10px';
+        }
+    }
 }
 
 function updateDisplay() {
@@ -281,6 +296,13 @@ function clearEverything() {
     saveDebtToCookies();
     updateDisplay();
     updateUndoButton();
+}
+
+function openPaymentApp() {
+    // Replace with actual Bit/PayBox link when ready
+    // window.open('BIT_OR_PAYBOX_LINK', '_blank');
+    
+    alert('Payment link coming soon!');
 }
 
 // Initialize

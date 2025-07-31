@@ -19,8 +19,8 @@
     </div>
 
     <div class="container">
-        <h1 data-i18n="title">Cookie Tracker</h1>
-        <p class="subtitle" data-i18n="subtitle">Trust-based cookie debt system</p>
+        <h1 data-i18n="title">Cookie Monster</h1>
+        <!-- <p class="subtitle" data-i18n="subtitle">Trust-based cookie debt system</p> -->
         
         <div class="cookie-section">
             <button class="cookie-btn" onclick="addCookie('Cookie', 1.0)">
@@ -39,7 +39,16 @@
                 <span data-i18n="totalDebt">Total Debt</span>: ₪<span id="debtAmount">0.0</span>
             </div>
         </div>
-
+        
+        <div class="payment-link-section">
+            <button class="payment-link-btn" onclick="openPaymentApp()" disabled>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                    <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+                Bit
+            </button>
+        </div>
         <div class="payment-section">
             <h3 data-i18n="addPayment">I paid:</h3>
             <div class="payment-buttons">
