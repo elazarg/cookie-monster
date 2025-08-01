@@ -260,11 +260,8 @@ function updateDisplay() {
         if (totalDebt > 0) {
             debtLabel.textContent = translate('totalDebt');
             const intensity = Math.min(totalDebt / maxDebt, 1);
-            const background = `rgba(255, 0, 0, ${0.05 + intensity * 0.35})`;
-            const border = `rgba(255, 0, 0, ${0.3 + intensity * 0.5})`;
-
-            display.style.background = background;
-            display.style.borderColor = border;
+            display.style.background = `rgba(255, 0, 0, ${0.05 + intensity * 0.35})`;
+            display.style.borderColor = `rgba(255, 0, 0, ${0.3 + intensity * 0.5})`;
             display.className = 'debt-display';  // base class only
         } else if (totalDebt === 0) {
             debtLabel.textContent = translate('totalDebt');
