@@ -258,6 +258,7 @@ function updateDisplay() {
     const debtLabel = display.querySelector('.debt-text span');
     if (debtLabel) {
         if (totalDebt > 0) {
+            debtLabel.textContent = translate('totalDebt');
             const intensity = Math.min(totalDebt / maxDebt, 1);
             const background = `rgba(255, 0, 0, ${0.05 + intensity * 0.35})`;
             const border = `rgba(255, 0, 0, ${0.3 + intensity * 0.5})`;
@@ -266,10 +267,12 @@ function updateDisplay() {
             display.style.borderColor = border;
             display.className = 'debt-display';  // base class only
         } else if (totalDebt === 0) {
+            debtLabel.textContent = translate('totalDebt');
             display.style.background = 'var(--debt-none-bg)';
             display.style.borderColor = 'var(--debt-none-border)';
             display.className = 'debt-display no-debt';
         } else {
+            debtLabel.textContent = translate('creditBalance');
             display.style.background = 'var(--debt-none-bg)';
             display.style.borderColor = 'var(--debt-none-border)';
             display.className = 'debt-display positive';
