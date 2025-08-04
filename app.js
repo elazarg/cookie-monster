@@ -1,3 +1,71 @@
+/**
+ * @typedef {Object} Translation
+ * @property {string} title
+ * @property {string} subtitle
+ * @property {string} totalDebt
+ * @property {string} creditBalance
+ * @property {string} iTookCookie
+ * @property {string} addPayment
+ * @property {string} clearEverything
+ * @property {string} undo
+ */
+
+/**
+ * @typedef {Object} HistoryAction
+ * @property {'cookie' | 'payment' | 'edit'} action
+ * @property {number} amount
+ * @property {string} description
+ * @property {number} previousDebt
+ */
+
+/**
+ * @typedef {'en' | 'he' | 'ar'} LanguageCode
+ */
+
+// App state
+/** @type {number} */
+let totalDebt = 0;
+/** @type {LanguageCode} */
+let currentLanguage = 'he';
+/** @type {HistoryAction[]} */
+let actionHistory = [];
+
+// UI state
+/** @type {number | undefined} */
+let longPressTimer;
+/** @type {boolean} */
+let isEditing = false;
+
+// Constants
+const maxDebt = 20.0;
+const LONG_PRESS_DELAY = 800;
+const ERROR_FLASH_DURATION = 400;
+const MAX_INPUT_LENGTH = 4;
+const INPUT_BOUNDS = { min: -9999, max: 9999 };
+
+// Utility functions
+/**
+ * @param {keyof Translation} key
+ * @returns {string}
+ */
+function translate(key) {
+    return translations[currentLanguage]?.[key] ?? translations.en[key] ?? key;
+}
+function loadDebtFromStorage() {
+    const savedDebt = localStorage.getItem('cookieDebt');
+    if (savedDebt !== null) {
+        totalDebt = parseFloat(savedDebt);
+    }
+}
+
+function saveDebtToStorage() {
+    localStorage.setItem('cookieDebt', totalDebt.toString());
+}
+
+// Language detection
+/**
+ * @returns {LanguageCode}
+ */
 function detectDeviceLanguage() {
     const userLang = navigator.language || navigator.userLanguage;
     const langCode = userLang.toLowerCase().substring(0, 2);
@@ -9,227 +77,41 @@ function detectDeviceLanguage() {
     return 'en';
 }
 
-let totalDebt = 0;
-let currentLanguage = 'he';
-let actionHistory = [];
-let longPressTimer;
-let isEditing = false;
+// Note: translations object is imported from translations.js
 
-const maxDebt = 20.0;
-
-function setCookie(name, value, days) {
-    const expires = new Date();
-    expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-    document.cookie = name + '=' + value + ';expires=' + expires.toUTCString() + ';path=/';
-}
-
-function getCookie(name) {
-    return document.cookie
-        .split('; ')
-        .find(row => row.startsWith(name + '='))
-        ?.split('=')[1] ?? null;
-}
-
-function loadDebtFromCookies() {
-    const savedDebt = getCookie('cookieDebt');
-    if (savedDebt !== null) {
-        totalDebt = parseFloat(savedDebt);
-    }
-}
-
-function saveDebtToCookies() {
-    setCookie('cookieDebt', totalDebt, 365);
-}
-
-const translations = {
-    en: {
-        title: "Cookie Monster",
-        subtitle: "Trust-based cookie debt system",
-        totalDebt: "Debt",
-        creditBalance: "Credit Balance",
-        iTookCookie: "I took a cookie",
-        addPayment: "I paid",
-        clearEverything: "I Paid Everything",
-        undo: "Undo",
-    },
-    he: {
-        title: "עוגי",
-        subtitle: "מערכת תשלום עצמי לעוגיות",
-        totalDebt: "חוב",
-        creditBalance: "יתרה",
-        iTookCookie: "לקחתי עוגיה",
-        addPayment: "שילמתי",
-        clearEverything: "שילמתי הכל",
-        undo: "ביטול",
-    },
-    ar: {
-        title: "كعكي",
-        subtitle: "نظام دفع ذاتي للكوكيز",
-        totalDebt: "الدين",
-        creditBalance: "رصيد",
-        iTookCookie: "أخذت كوكي",
-        addPayment: "دفعت",
-        clearEverything: "دفعت كل شيء",
-        undo: "تراجع",
-    }
-};
-
-function translate(key) {
-    return translations[currentLanguage]?.[key] ?? translations.en[key] ?? key;
-}
-
+/**
+ * @param {HistoryAction['action']} action
+ * @param {number} amount
+ * @param {string} description
+ */
 function addToHistory(action, amount, description) {
     actionHistory.push({
-        action: action,
-        amount: amount,
-        description: description,
+        action,
+        amount,
+        description,
         previousDebt: totalDebt - amount
     });
     updateUndoButton();
-}
-
-function updateUndoButton() {
-    const undoBtn = document.getElementById('undoBtn');
-    if (undoBtn) {
-        undoBtn.disabled = actionHistory.length === 0;
-    }
 }
 
 function undoLastAction() {
     if (actionHistory.length === 0) return;
 
     const lastAction = actionHistory.pop();
-    totalDebt = lastAction.previousDebt;
+    if (lastAction) {
+        totalDebt = lastAction.previousDebt;
+    }
 
-    saveDebtToCookies();
+    saveDebtToStorage();
     updateDisplay();
     updateUndoButton();
 }
 
-function handleLongPress(event) {
-    if (event) event.preventDefault();
-    if (longPressTimer) clearTimeout(longPressTimer);
-    longPressTimer = setTimeout(() => {
-        editDebtAmount();
-    }, 800);
-}
-
-function editDebtAmount() {
-    if (isEditing) return;
-
-    const oldSpan = document.getElementById('debtAmount');
-    if (!oldSpan) return;
-
-    isEditing = true;
-    const currentValue = totalDebt.toString();
-
-    const input = document.createElement('input');
-    input.type = 'number';
-    input.inputMode = 'numeric';
-    input.pattern = "-?[0-9]{1,4}";
-    input.value = currentValue;
-    input.className = 'debt-input';
-    input.setAttribute('aria-label', 'Edit debt amount');
-    input.setAttribute('maxlength', '5');
-    input.setAttribute('min', '-9999');
-    input.setAttribute('max', '9999');
-
-    oldSpan.replaceWith(input);
-    input.focus();
-    
-    input.addEventListener('beforeinput', function (e) {
-        if (e.inputType.startsWith('delete')) return;
-
-        const selection = input.selectionStart;
-        const value = input.value;
-        const proposed =
-            value.slice(0, selection) + e.data + value.slice(input.selectionEnd);
-
-        if (proposed.length > 4) {
-            e.preventDefault();
-        }
-    });
-
-    input.select();
-
-    function finish() {
-        if (!isEditing) return;
-        isEditing = false;
-
-        let newValue = parseInt(input.value);
-        if (!isNaN(newValue)) {
-            const oldDebt = totalDebt;
-            totalDebt = newValue;
-            addToHistory('edit', totalDebt - oldDebt, `Manual edit to ₪${totalDebt}`);
-            saveDebtToCookies();
-        }
-
-        const newSpan = document.createElement('span');
-        newSpan.id = 'debtAmount';
-        newSpan.textContent = Math.abs(totalDebt);
-        newSpan.setAttribute('aria-live', 'polite');
-        newSpan.className = oldSpan.className;
-
-        input.replaceWith(newSpan);
-        updateDisplay();
-    }
-    input.addEventListener('blur', finish);
-    input.addEventListener('keydown', function (e) {
-        if (e.key.toLowerCase() === 'e' || e.key === '+' || e.key === ',') {
-            e.preventDefault();
-            return;
-        }
-
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            finish();
-        }
-    });
-}
-
-function flashDebtError() {
-    const display = document.getElementById('debtDisplay');
-    if (!display) return;
-
-    display.classList.add('error');
-    setTimeout(() => display.classList.remove('error'), 400);
-}
-
-function setLanguage(lang) {
-    currentLanguage = lang;
-
-    if (lang === 'he' || lang === 'ar') {
-        document.dir = 'rtl';
-    } else {
-        document.dir = 'ltr';
-    }
-
-    document.querySelectorAll('[data-i18n]').forEach(element => {
-        const key = element.getAttribute('data-i18n');
-        if (translations[lang] && translations[lang][key]) {
-            element.textContent = translations[lang][key];
-        }
-    });
-
-    const dropdown = document.getElementById('languageDropdown');
-    const options = document.getElementById('langOptions');
-    dropdown.classList.remove('open');
-    options.style.display = 'none';
-
-    updateDisplay();
-}
-
-function toggleLanguageDropdown(event) {
-    event.stopPropagation();
-    const dropdown = document.getElementById('languageDropdown');
-    const options = document.getElementById('langOptions');
-
-    if (dropdown.classList.contains('open')) {
-        dropdown.classList.remove('open');
-        options.style.display = 'none';
-    } else {
-        dropdown.classList.add('open');
-        options.style.display = 'block';
+// UI Functions
+function updateUndoButton() {
+    const undoBtn = document.getElementById('undoBtn');
+    if (undoBtn) {
+        undoBtn.disabled = actionHistory.length === 0;
     }
 }
 
@@ -240,7 +122,7 @@ function updateDisplay() {
 
     if (!display || !debtAmountElement || !progressFill) return;
 
-    debtAmountElement.textContent = Math.abs(totalDebt);
+    debtAmountElement.textContent = Math.abs(totalDebt).toString();
 
     const debtLabel = display.querySelector('.debt-text span');
     if (debtLabel) {
@@ -264,6 +146,162 @@ function updateDisplay() {
     }
 }
 
+function flashDebtError() {
+    const display = document.getElementById('debtDisplay');
+    if (!display) return;
+
+    display.classList.add('error');
+    setTimeout(() => display.classList.remove('error'), ERROR_FLASH_DURATION);
+}
+
+/**
+ * @param {Event} [event]
+ */
+function handleLongPress(event) {
+    if (event) event.preventDefault();
+    if (longPressTimer) clearTimeout(longPressTimer);
+    longPressTimer = setTimeout(() => {
+        editDebtAmount();
+    }, LONG_PRESS_DELAY);
+}
+
+/**
+ * @param {HTMLInputElement} input
+ * @param {() => void} finish
+ */
+function setupDebtInput(input, finish) {
+    input.addEventListener('beforeinput', function (e) {
+        if (e.inputType.startsWith('delete')) return;
+
+        const selection = input.selectionStart ?? 0;
+        const value = input.value;
+        const proposed = value.slice(0, selection) + (e.data ?? '') + value.slice(input.selectionEnd ?? selection);
+
+        if (proposed.length > MAX_INPUT_LENGTH) {
+            e.preventDefault();
+        }
+    });
+
+    input.addEventListener('blur', finish);
+    
+    input.addEventListener('keydown', function (e) {
+        if (e.key.toLowerCase() === 'e' || e.key === '+' || e.key === ',') {
+            e.preventDefault();
+            return;
+        }
+
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            finish();
+        }
+    });
+}
+
+function editDebtAmount() {
+    if (isEditing) return;
+
+    const oldSpan = document.getElementById('debtAmount');
+    if (!oldSpan) return;
+
+    isEditing = true;
+    const currentValue = totalDebt.toString();
+
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.inputMode = 'numeric';
+    input.pattern = "-?[0-9]{1,4}";
+    input.value = currentValue;
+    input.className = 'debt-input';
+    input.setAttribute('aria-label', 'Edit debt amount');
+    input.setAttribute('maxlength', '5');
+    input.setAttribute('min', INPUT_BOUNDS.min.toString());
+    input.setAttribute('max', INPUT_BOUNDS.max.toString());
+
+    oldSpan.replaceWith(input);
+    input.focus();
+
+    function finish() {
+        if (!isEditing) return;
+        isEditing = false;
+
+        const newValue = parseInt(input.value);
+        if (!isNaN(newValue)) {
+            const oldDebt = totalDebt;
+            totalDebt = newValue;
+            addToHistory('edit', totalDebt - oldDebt, `Manual edit to ₪${totalDebt}`);
+            saveDebtToStorage();
+        }
+
+        const newSpan = document.createElement('span');
+        newSpan.id = 'debtAmount';
+        newSpan.textContent = Math.abs(totalDebt).toString();
+        newSpan.setAttribute('aria-live', 'polite');
+        newSpan.className = oldSpan.className;
+
+        input.replaceWith(newSpan);
+        updateDisplay();
+    }
+
+    setupDebtInput(input, finish);
+    input.select();
+}
+
+// Language/i18n functions
+/**
+ * @param {LanguageCode} lang
+ */
+function setLanguage(lang) {
+    currentLanguage = lang;
+
+    if (lang === 'he' || lang === 'ar') {
+        document.dir = 'rtl';
+    } else {
+        document.dir = 'ltr';
+    }
+
+    document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+            element.textContent = translations[lang][key];
+        }
+    });
+
+    const dropdown = document.getElementById('languageDropdown');
+    const options = document.getElementById('langOptions');
+    dropdown?.classList.remove('open');
+    if (options) {
+        options.style.display = 'none';
+    }
+
+    updateDisplay();
+}
+
+/**
+ * @param {Event} event
+ */
+function toggleLanguageDropdown(event) {
+    event.stopPropagation();
+    const dropdown = document.getElementById('languageDropdown');
+    const options = document.getElementById('langOptions');
+
+    if (dropdown?.classList.contains('open')) {
+        dropdown.classList.remove('open');
+        if (options) {
+            options.style.display = 'none';
+        }
+    } else {
+        dropdown?.classList.add('open');
+        if (options) {
+            options.style.display = 'block';
+        }
+    }
+}
+
+// Business logic functions
+/**
+ * @param {string} cookieType
+ * @param {number} price
+ */
 function addCookie(cookieType, price) {
     if (totalDebt + price > maxDebt) {
         flashDebtError();
@@ -272,10 +310,13 @@ function addCookie(cookieType, price) {
 
     totalDebt += price;
     addToHistory('cookie', price, `${cookieType} (₪${price})`);
-    saveDebtToCookies();
+    saveDebtToStorage();
     updateDisplay();
 }
 
+/**
+ * @param {number} amount
+ */
 function addPayment(amount) {
     if (!amount) return;
 
@@ -289,14 +330,14 @@ function addPayment(amount) {
 
     totalDebt = newDebt;
     addToHistory('payment', -amount, `Payment ₪${amount}`);
-    saveDebtToCookies();
+    saveDebtToStorage();
     updateDisplay();
 }
 
 function clearEverything() {
     totalDebt = 0;
     actionHistory = [];
-    saveDebtToCookies();
+    saveDebtToStorage();
     updateDisplay();
     updateUndoButton();
 }
@@ -305,7 +346,8 @@ function openPaymentApp() {
     window.open('https://www.bitpay.co.il/app/me/BF427070-1BCE-B33D-61C7-05D6AB9DE241D263', '_blank');
 }
 
-loadDebtFromCookies();
+// Initialization
+loadDebtFromStorage();
 setLanguage(detectDeviceLanguage());
 updateUndoButton();
 
