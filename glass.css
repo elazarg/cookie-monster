@@ -290,7 +290,7 @@ input[type=number] {
 
 .payment-buttons {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 12px;
 }
 
@@ -305,12 +305,6 @@ input[type=number] {
     font-weight: 600;
     font-size: 16px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.payment-btn:hover {
-    background: var(--glass-bg-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
 }
 
 .payment-btn:active {
