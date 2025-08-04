@@ -1,18 +1,14 @@
-// Language detection and dropdown functions
 function detectDeviceLanguage() {
     const userLang = navigator.language || navigator.userLanguage;
     const langCode = userLang.toLowerCase().substring(0, 2);
 
-    // Check if we support the detected language
     if (translations[langCode]) {
         return langCode;
     }
 
-    // Default to English if not supported
     return 'en';
 }
 
-// Simple debt tracking with browser storage
 let totalDebt = 0;
 let currentLanguage = 'he';
 let actionHistory = [];
@@ -21,7 +17,6 @@ let isEditing = false;
 
 const maxDebt = 20.0;
 
-// Browser cookie functions
 function setCookie(name, value, days) {
     const expires = new Date();
     expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -29,7 +24,6 @@ function setCookie(name, value, days) {
 }
 
 function getCookie(name) {
-    const nameEQ = name + '=';
     return document.cookie
         .split('; ')
         .find(row => row.startsWith(name + '='))
@@ -47,7 +41,6 @@ function saveDebtToCookies() {
     setCookie('cookieDebt', totalDebt, 365);
 }
 
-// Translation data
 const translations = {
     en: {
         title: "Cookie Monster",
@@ -108,7 +101,6 @@ function undoLastAction() {
     const lastAction = actionHistory.pop();
     totalDebt = lastAction.previousDebt;
 
-    console.log(`Undid: ${lastAction.description}`);
     saveDebtToCookies();
     updateDisplay();
     updateUndoButton();
@@ -138,16 +130,15 @@ function editDebtAmount() {
     input.value = currentValue;
     input.className = 'debt-input';
     input.setAttribute('aria-label', 'Edit debt amount');
-    input.setAttribute('maxlength', '5');  // Not enforced by all browsers, but safe
+    input.setAttribute('maxlength', '5');
     input.setAttribute('min', '-9999');
     input.setAttribute('max', '9999');
 
-    // Replace span with input
     oldSpan.replaceWith(input);
     input.focus();
     
     input.addEventListener('beforeinput', function (e) {
-        if (e.inputType.startsWith('delete')) return; // always allow deletes
+        if (e.inputType.startsWith('delete')) return;
 
         const selection = input.selectionStart;
         const value = input.value;
@@ -173,7 +164,6 @@ function editDebtAmount() {
             saveDebtToCookies();
         }
 
-        // Replace input back with span
         const newSpan = document.createElement('span');
         newSpan.id = 'debtAmount';
         newSpan.textContent = Math.abs(totalDebt);
@@ -185,7 +175,6 @@ function editDebtAmount() {
     }
     input.addEventListener('blur', finish);
     input.addEventListener('keydown', function (e) {
-        // Prevent 'e', '+', and other non-digit characters
         if (e.key.toLowerCase() === 'e' || e.key === '+' || e.key === ',') {
             e.preventDefault();
             return;
@@ -196,7 +185,6 @@ function editDebtAmount() {
             finish();
         }
     });
-
 }
 
 function flashDebtError() {
@@ -223,7 +211,6 @@ function setLanguage(lang) {
         }
     });
 
-    // Close dropdown properly - remove BOTH class AND inline style
     const dropdown = document.getElementById('languageDropdown');
     const options = document.getElementById('langOptions');
     dropdown.classList.remove('open');
@@ -233,7 +220,7 @@ function setLanguage(lang) {
 }
 
 function toggleLanguageDropdown(event) {
-    event.stopPropagation(); // Prevent immediate closing
+    event.stopPropagation();
     const dropdown = document.getElementById('languageDropdown');
     const options = document.getElementById('langOptions');
 
@@ -262,7 +249,7 @@ function updateDisplay() {
             const intensity = Math.min(totalDebt / maxDebt, 1);
             display.style.background = `rgba(255, 0, 0, ${0.05 + intensity * 0.35})`;
             display.style.borderColor = `rgba(255, 0, 0, ${0.3 + intensity * 0.5})`;
-            display.className = 'debt-display';  // base class only
+            display.className = 'debt-display';
         } else if (totalDebt === 0) {
             debtLabel.textContent = translate('totalDebt');
             display.style.background = 'var(--debt-none-bg)';
@@ -285,7 +272,6 @@ function addCookie(cookieType, price) {
 
     totalDebt += price;
     addToHistory('cookie', price, `${cookieType} (₪${price})`);
-    console.log(`Added ${cookieType} (₪${price}). New total: ₪${totalDebt}`);
     saveDebtToCookies();
     updateDisplay();
 }
@@ -303,13 +289,11 @@ function addPayment(amount) {
 
     totalDebt = newDebt;
     addToHistory('payment', -amount, `Payment ₪${amount}`);
-    console.log(`Payment of ₪${amount}. New total: ₪${totalDebt}`);
     saveDebtToCookies();
     updateDisplay();
 }
 
 function clearEverything() {
-    const t = translations[currentLanguage];
     totalDebt = 0;
     actionHistory = [];
     saveDebtToCookies();
@@ -318,16 +302,13 @@ function clearEverything() {
 }
 
 function openPaymentApp() {
-    // Replace with actual Bit/PayBox link when ready
     window.open('https://www.bitpay.co.il/app/me/BF427070-1BCE-B33D-61C7-05D6AB9DE241D263', '_blank');
-    // alert('Payment link coming soon!');
 }
 
-// Initialize
 loadDebtFromCookies();
 setLanguage(detectDeviceLanguage());
 updateUndoButton();
-// Register Service Worker
+
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').then(registration => {
