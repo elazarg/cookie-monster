@@ -1,11 +1,12 @@
-const CACHE_NAME = 'cookie-monster-cache-v1';
+const CACHE_NAME = 'cookie-monster-cache-v4';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/glass.css',
-  '/app.js',
-  '/translations.js'
+  '.',
+  'index.html',
+  'glass.css',
+  'app.js',
+  'translations.js'
 ];
+
 
 // Install service worker and cache resources
 self.addEventListener('install', event => {
